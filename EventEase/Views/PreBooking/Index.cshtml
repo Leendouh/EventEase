@@ -1,0 +1,177 @@
+﻿@model EventEase.Models.ViewModels.PreBookingSearchViewModel
+
+@{
+    ViewData["Title"] = "Pre-Bookings";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="display-6">
+            <i class="bi bi-calendar-plus"></i> Pre-Bookings
+        </h1>
+        <div>
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> New Pre-Booking
+            </a>
+        </div>
+    </div>
+
+    <!-- Search Card -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white">
+            <h5 class="mb-0"><i class="bi bi-search"></i> Search Pre-Bookings</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" asp-action="Index" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Search</label>
+                    <input type="text" name="searchTerm" value="@Model.SearchTerm" class="form-control"
+                           placeholder="Event or customer...">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Status</label>
+                    <select name="status" asp-items="Model.StatusList" class="form-select">
+                        <option value="">All</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">From Date</label>
+                    <input type="date" name="fromDate" value="@Model.FromDate?.ToString("yyyy-MM-dd")" class="form-control">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">To Date</label>
+                    <input type="date" name="toDate" value="@Model.ToDate?.ToString("yyyy-MM-dd")" class="form-control">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Venue</label>
+                    <select name="preferredVenueId" asp-items="Model.VenueList" class="form-select">
+                        <option value="">All</option>
+                    </select>
+                </div>
+                <div class="col-md-1 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Results -->
+    <div class="card shadow">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Request Date</th>
+                            <th>Customer</th>
+                            <th>Event</th>
+                            <th>Preferred Venue</th>
+                            <th>Preferred Dates</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.PreBookings)
+                        {
+                            <tr>
+                                <td><span class="badge bg-secondary">@item.FormattedPreBookingId</span></td>
+                                <td>@item.RequestDate.ToString("dd MMM yyyy")</td>
+                                <td>
+                                    @item.CustomerName<br />
+                                    <small class="text-muted">@item.CustomerPhone</small>
+                                </td>
+                                <td>@item.EventName</td>
+                                <td>@(item.PreferredVenue?.VenueName ?? "No preference")</td>
+                                <td>
+                                    @if (item.PreferredStartDate.HasValue)
+                                    {
+                                        @item.PreferredStartDate.Value.ToString("dd MMM yyyy")
+                                        @if (item.PreferredEndDate.HasValue)
+                                        {
+                                            <span> - @item.PreferredEndDate.Value.ToString("dd MMM yyyy")</span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Not specified</span>
+                                    }
+                                </td>
+                                <td>
+                                    @{
+                                        string badgeClass = item.Status switch
+                                        {
+                                            "Waiting" => "warning",
+                                            "Notified" => "info",
+                                            "Converted" => "success",
+                                            "Expired" => "secondary",
+                                            _ => "secondary"
+                                        };
+                                    }
+                                    <span class="badge bg-@badgeClass">@item.Status</span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Details" asp-route-id="@item.PreBookingId"
+                                           class="btn btn-sm btn-outline-info">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+
+                                        @if (item.Status != "Converted")
+                                        {
+                                            <a asp-action="Edit" asp-route-id="@item.PreBookingId"
+                                               class="btn btn-sm btn-outline-warning">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                        }
+
+                                        @if (item.Status == "Waiting")
+                                        {
+                                            <a asp-action="Convert" asp-route-id="@item.PreBookingId"
+                                               class="btn btn-sm btn-outline-success">
+                                                <i class="bi bi-check-circle"></i>
+                                            </a>
+                                            <form asp-action="Expire" asp-route-id="@item.PreBookingId"
+                                                  method="post" style="display:inline;">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-sm btn-outline-secondary">
+                                                    <i class="bi bi-clock"></i>
+                                                </button>
+                                            </form>
+                                        }
+
+                                        @if (item.Status == "Waiting" || item.Status == "Notified")
+                                        {
+                                            <a asp-action="Cancel" asp-route-id="@item.PreBookingId"
+                                               class="btn btn-sm btn-outline-danger">
+                                                <i class="bi bi-x-circle"></i>
+                                            </a>
+                                        }
+
+                                        @if (item.Status == "Converted" && item.ConvertedToBookingId.HasValue)
+                                        {
+                                            <a asp-controller="Booking" asp-action="Details" asp-route-id="@item.ConvertedToBookingId"
+                                               class="btn btn-sm btn-outline-success">
+                                                <i class="bi bi-journal-bookmark-fill"></i>
+                                            </a>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @if (!Model.PreBookings.Any())
+            {
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> No pre-bookings found.
+                </div>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,101 @@
+﻿@model EventEase.Models.ViewModels.VenueSearchViewModel
+
+@{
+    ViewData["Title"] = "Venues";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="display-6">
+            <i class="bi bi-building"></i> Venues
+        </h1>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Add New Venue
+        </a>
+    </div>
+
+    <!-- Search Card -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white">
+            <h5 class="mb-0"><i class="bi bi-search"></i> Search & Filter Venues</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" asp-action="Index" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Search</label>
+                    <input type="text" name="searchTerm" value="@Model.SearchTerm" class="form-control"
+                           placeholder="Venue name or description...">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Location</label>
+                    <select name="location" asp-items="Model.LocationList" class="form-select">
+                        <option value="">All Locations</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Min Capacity</label>
+                    <input type="number" name="minCapacity" value="@Model.MinCapacity" class="form-control"
+                           placeholder="Min capacity">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Availability</label>
+                    <select name="isAvailable" class="form-select">
+                        <option value="">All</option>
+                        <option value="true" selected="@(Model.IsAvailable == true)">Available</option>
+                        <option value="false" selected="@(Model.IsAvailable == false)">Unavailable</option>
+                    </select>
+                </div>
+                <div class="col-md-1 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Results -->
+    <div class="row">
+        @foreach (var item in Model.Venues)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <img src="@item.ImageUrl" class="card-img-top" alt="@item.VenueName"
+                         style="height: 200px; object-fit: cover;">
+                    <div class="card-body">
+                        <h5 class="card-title">@item.VenueName</h5>
+                        <p class="card-text text-muted">
+                            <i class="bi bi-geo-alt"></i> @item.Location<br>
+                            <i class="bi bi-people"></i> Capacity: @item.Capacity<br>
+                            <i class="bi bi-tag"></i> @item.FormattedVenueId
+                        </p>
+                        <p class="card-text">@item.Description</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-@(item.IsAvailable ? "success" : "secondary")">
+                                @(item.IsAvailable ? "Available" : "Unavailable")
+                            </span>
+                            <div>
+                                <a asp-action="Edit" asp-route-id="@item.VenueId" class="btn btn-sm btn-outline-warning">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a asp-action="Details" asp-route-id="@item.VenueId" class="btn btn-sm btn-outline-info">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.VenueId" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (!Model.Venues.Any())
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> No venues found matching your criteria.
+        </div>
+    }
+</div>

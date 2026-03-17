@@ -1,0 +1,139 @@
+﻿@model EventEase.Models.ViewModels.PreBookingDetailsViewModel
+
+@{
+    ViewData["Title"] = "Pre-Booking Details";
+    var preBooking = Model.PreBooking;
+}
+
+<div class="container mt-4">
+    <h1 class="display-6 mb-4">
+        <i class="bi bi-info-circle"></i> Pre-Booking Details
+    </h1>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">@preBooking.FormattedPreBookingId - @preBooking.EventName</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-primary">Customer Information</h6>
+                            <hr />
+                            <p><strong>Name:</strong> @preBooking.CustomerName</p>
+                            <p><strong>Phone:</strong> @preBooking.CustomerPhone</p>
+                            <p><strong>Email:</strong> @preBooking.CustomerEmail</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-primary">Request Information</h6>
+                            <hr />
+                            <p><strong>Request Date:</strong> @preBooking.RequestDate.ToString("dd MMM yyyy HH:mm")</p>
+                            <p>
+                                <strong>Status:</strong>
+                                @{
+                                    string badgeClass = preBooking.Status switch
+                                    {
+                                        "Waiting" => "warning",
+                                        "Notified" => "info",
+                                        "Converted" => "success",
+                                        "Expired" => "secondary",
+                                        _ => "secondary"
+                                    };
+                                }
+                                <span class="badge bg-@badgeClass">@preBooking.Status</span>
+                            </p>
+                            <p><strong>Created By:</strong> @(preBooking.CreatedByAdmin?.FullName ?? "System")</p>
+                        </div>
+                    </div>
+
+                    <h6 class="text-primary mt-4">Event Details</h6>
+                    <hr />
+                    <p><strong>Event Name:</strong> @preBooking.EventName</p>
+                    <p><strong>Description:</strong> @preBooking.EventDescription</p>
+                    <p><strong>Expected Attendees:</strong> @(preBooking.ExpectedAttendees?.ToString() ?? "Not specified")</p>
+
+                    <h6 class="text-primary mt-4">Venue Preferences</h6>
+                    <hr />
+                    <p><strong>Preferred Venue:</strong> @(preBooking.PreferredVenue?.VenueName ?? "No preference")</p>
+                    @if (preBooking.PreferredStartDate.HasValue)
+                    {
+                        <p>
+                            <strong>Preferred Dates:</strong>
+                            @preBooking.PreferredStartDate.Value.ToString("dd MMM yyyy")
+                            @if (preBooking.PreferredEndDate.HasValue)
+                            {
+                                <span> - @preBooking.PreferredEndDate.Value.ToString("dd MMM yyyy")</span>
+                            }
+                        </p>
+                    }
+
+                    @if (!string.IsNullOrEmpty(preBooking.Notes))
+                    {
+                        <h6 class="text-primary mt-4">Notes</h6>
+                        <hr />
+                        <p>@preBooking.Notes</p>
+                    }
+
+                    <div class="mt-4">
+                        @if (preBooking.Status == "Waiting")
+                        {
+                            <form asp-action="Notify" asp-route-id="@preBooking.PreBookingId" method="post" style="display:inline;">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-info text-white">
+                                    <i class="bi bi-bell"></i> Notify Customer
+                                </button>
+                            </form>
+                            <a asp-action="Convert" asp-route-id="@preBooking.PreBookingId" class="btn btn-success">
+                                <i class="bi bi-check-circle"></i> Convert to Booking
+                            </a>
+                            <form asp-action="Expire" asp-route-id="@preBooking.PreBookingId" method="post" style="display:inline;">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-secondary">
+                                    <i class="bi bi-clock"></i> Mark as Expired
+                                </button>
+                            </form>
+                        }
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            @if (Model.AvailableVenues != null && Model.AvailableVenues.Any())
+            {
+                <div class="card shadow">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="bi bi-calendar-check"></i> Available Venues for Preferred Dates</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            @foreach (var venue in Model.AvailableVenues)
+                            {
+                                <div class="col-md-4 mb-3">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h6 class="card-title">@venue.VenueName</h6>
+                                            <p class="small">
+                                                <i class="bi bi-geo-alt"></i> @venue.Location<br />
+                                                <i class="bi bi-people"></i> Capacity: @venue.Capacity
+                                            </p>
+                                            <a asp-controller="Booking" asp-action="Create"
+                                               asp-route-venueId="@venue.VenueId"
+                                               asp-route-startDate="@preBooking.PreferredStartDate"
+                                               asp-route-endDate="@preBooking.PreferredEndDate"
+                                               class="btn btn-sm btn-outline-success">
+                                                Book Now
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,61 @@
+﻿@model EventEase.Models.Event
+
+@{
+    ViewData["Title"] = "Delete Event";
+}
+
+<div class="container mt-4">
+    <h1 class="display-6 mb-4 text-danger">
+        <i class="bi bi-exclamation-triangle"></i> Delete Event
+    </h1>
+
+    <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle"></i> Are you sure you want to delete this event? This action cannot be undone.
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-3">Event ID</dt>
+                        <dd class="col-sm-9">@Model.FormattedEventId</dd>
+
+                        <dt class="col-sm-3">Event Name</dt>
+                        <dd class="col-sm-9">@Model.EventName</dd>
+
+                        <dt class="col-sm-3">Date</dt>
+                        <dd class="col-sm-9">@Model.EventDate.ToString("dd MMM yyyy")</dd>
+
+                        <dt class="col-sm-3">Venue</dt>
+                        <dd class="col-sm-9">@(Model.Venue?.VenueName ?? "No venue assigned")</dd>
+
+                        <dt class="col-sm-3">Attendees</dt>
+                        <dd class="col-sm-9">@(Model.ExpectedAttendees?.ToString() ?? "Not specified")</dd>
+                    </dl>
+
+                    @if (Model.Bookings != null && Model.Bookings.Any())
+                    {
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            This event has @Model.Bookings.Count() booking(s) and cannot be deleted.
+                        </div>
+                        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+                    }
+                    else
+                    {
+                        <form asp-action="Delete" method="post">
+                            <input type="hidden" asp-for="EventId" />
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash"></i> Delete Event
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Cancel
+                            </a>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

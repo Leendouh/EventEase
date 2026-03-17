@@ -1,0 +1,97 @@
+﻿@model IEnumerable<EventEase.Models.ViewModels.AdminListViewModel>
+
+@{
+    ViewData["Title"] = "Admin Management";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="display-6">
+            <i class="bi bi-people"></i> Admin Management
+        </h1>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Create New Sub-Admin
+        </a>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Admin ID</th>
+                            <th>Username</th>
+                            <th>Full Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>First Login</th>
+                            <th>Created By</th>
+                            <th>Last Login</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td><span class="badge bg-secondary">@item.FormattedAdminId</span></td>
+                                <td>@item.Username</td>
+                                <td>@item.FullName</td>
+                                <td>@item.Email</td>
+                                <td>
+                                    <span class="badge bg-@(item.Role == "SuperAdmin" ? "danger" : "info")">
+                                        @item.Role
+                                    </span>
+                                </td>
+                                <td>
+                                    @if (item.IsActive)
+                                    {
+                                        <span class="badge bg-success">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Inactive</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.IsFirstLogin)
+                                    {
+                                        <span class="badge bg-warning">Pending</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">Completed</span>
+                                    }
+                                </td>
+                                <td>@item.CreatedByName</td>
+                                <td>@(item.LastLoginDate?.ToString("dd MMM yyyy") ?? "Never")</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Edit" asp-route-id="@item.AdminId"
+                                           class="btn btn-sm btn-outline-warning" title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a asp-action="ResetPassword" asp-route-id="@item.AdminId"
+                                           class="btn btn-sm btn-outline-info" title="Reset Password">
+                                            <i class="bi bi-key"></i>
+                                        </a>
+                                        <form asp-action="ToggleStatus" asp-route-id="@item.AdminId"
+                                              method="post" style="display:inline;">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-outline-@(item.IsActive ? "danger" : "success")"
+                                                    title="@(item.IsActive ? "Deactivate" : "Activate")">
+                                                <i class="bi bi-@(item.IsActive ? "pause-circle" : "play-circle")"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

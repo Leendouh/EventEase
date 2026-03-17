@@ -1,0 +1,141 @@
+﻿@model EventEase.Models.ViewModels.BookingSearchViewModel
+
+@{
+    ViewData["Title"] = "Bookings";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="display-6">
+            <i class="bi bi-journal-bookmark-fill"></i> Bookings
+        </h1>
+        <div>
+            <a asp-action="ByCustomer" class="btn btn-outline-secondary me-2">
+                <i class="bi bi-person-badge"></i> Search by Customer
+            </a>
+            <a asp-action="Create" class="btn btn-info text-white">
+                <i class="bi bi-plus-circle"></i> New Booking
+            </a>
+        </div>
+    </div>
+
+    <!-- Search Card -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white">
+            <h5 class="mb-0"><i class="bi bi-search"></i> Search & Filter Bookings</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" asp-action="Index" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Search</label>
+                    <input type="text" name="searchTerm" value="@Model.SearchTerm" class="form-control"
+                           placeholder="Booking #, customer...">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Start Date</label>
+                    <input type="date" name="startDate" value="@Model.StartDate?.ToString("yyyy-MM-dd")" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">End Date</label>
+                    <input type="date" name="endDate" value="@Model.EndDate?.ToString("yyyy-MM-dd")" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Status</label>
+                    <select name="status" asp-items="Model.StatusList" class="form-select">
+                        <option value="">All Statuses</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Venue</label>
+                    <select name="venueId" asp-items="Model.VenueList" class="form-select">
+                        <option value="">All Venues</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Event</label>
+                    <select name="eventId" asp-items="Model.EventList" class="form-select">
+                        <option value="">All Events</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search"></i> Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Results -->
+    <div class="card shadow">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Booking #</th>
+                            <th>Date</th>
+                            <th>Customer</th>
+                            <th>Event</th>
+                            <th>Venue</th>
+                            <th>Start Date</th>
+                            <th>Status</th>
+                            <th>Booked By</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Bookings)
+                        {
+                            <tr>
+                                <td><span class="badge bg-secondary">@item.BookingNumber</span></td>
+                                <td>@item.BookingDate.ToString("dd MMM yyyy")</td>
+                                <td>
+                                    @item.CustomerName @item.CustomerSurname<br />
+                                    <small class="text-muted">@item.CustomerPhone</small>
+                                </td>
+                                <td>@(item.Event?.EventName ?? "N/A")</td>
+                                <td>@(item.Venue?.VenueName ?? "N/A")</td>
+                                <td>@item.StartDate.ToString("dd MMM yyyy HH:mm")</td>
+                                <td>
+                                    <span class="badge bg-@(item.Status == "Confirmed" ? "success" :
+                                                                                  item.Status == "Pending" ? "warning" :
+                                                                                  item.Status == "Cancelled" ? "danger" : "secondary")">
+                                    @item.Status
+                                </span>
+                            </td>
+                            <td>@(item.CreatedByAdmin?.FullName ?? "System")</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a asp-action="Details" asp-route-id="@item.BookingId"
+                                       class="btn btn-sm btn-outline-info">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    @if (item.Status != "Cancelled")
+                                        {
+                                            <a asp-action="Edit" asp-route-id="@item.BookingId"
+                                               class="btn btn-sm btn-outline-warning">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <a asp-action="Cancel" asp-route-id="@item.BookingId"
+                                               class="btn btn-sm btn-outline-danger">
+                                                <i class="bi bi-x-circle"></i>
+                                            </a>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @if (!Model.Bookings.Any())
+            {
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> No bookings found matching your criteria.
+                </div>
+            }
+        </div>
+    </div>
+</div>

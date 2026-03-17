@@ -1,0 +1,137 @@
+﻿@model EventEase.Models.Booking
+
+@{
+    ViewData["Title"] = "Edit Booking";
+}
+
+<div class="container mt-4">
+    <h1 class="display-6 mb-4">
+        <i class="bi bi-pencil"></i> Edit Booking
+    </h1>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-body">
+                    <form asp-action="Edit">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <input type="hidden" asp-for="BookingId" />
+                        <input type="hidden" asp-for="BookingNumber" />
+                        <input type="hidden" asp-for="BookingDate" />
+                        <input type="hidden" asp-for="CreatedDate" />
+                        <input type="hidden" asp-for="CreatedBy" />
+
+                        <h6 class="text-primary">Event Information</h6>
+                        <hr />
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="EventId" class="form-label">Select Event</label>
+                                    <select asp-for="EventId" class="form-select" asp-items="@(new SelectList(ViewBag.Events, "EventId", "EventName"))">
+                                        <option value="">-- Select Event --</option>
+                                    </select>
+                                    <span asp-validation-for="EventId" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="VenueId" class="form-label">Select Venue</label>
+                                    <select asp-for="VenueId" class="form-select" asp-items="@(new SelectList(ViewBag.Venues, "VenueId", "VenueName"))">
+                                        <option value="">-- Select Venue --</option>
+                                    </select>
+                                    <span asp-validation-for="VenueId" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="StartDate" class="form-label"></label>
+                                    <input asp-for="StartDate" class="form-control" type="datetime-local" />
+                                    <span asp-validation-for="StartDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="EndDate" class="form-label"></label>
+                                    <input asp-for="EndDate" class="form-control" type="datetime-local" />
+                                    <span asp-validation-for="EndDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h6 class="text-primary mt-4">Customer Information</h6>
+                        <hr />
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="CustomerName" class="form-label"></label>
+                                    <input asp-for="CustomerName" class="form-control" />
+                                    <span asp-validation-for="CustomerName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="CustomerSurname" class="form-label"></label>
+                                    <input asp-for="CustomerSurname" class="form-control" />
+                                    <span asp-validation-for="CustomerSurname" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="CustomerPhone" class="form-label"></label>
+                                    <input asp-for="CustomerPhone" class="form-control" />
+                                    <span asp-validation-for="CustomerPhone" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="CustomerEmail" class="form-label"></label>
+                                    <input asp-for="CustomerEmail" class="form-control" type="email" />
+                                    <span asp-validation-for="CustomerEmail" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="CustomerIDNumber" class="form-label">ID/Passport Number (Optional)</label>
+                            <input asp-for="CustomerIDNumber" class="form-control" />
+                            <span asp-validation-for="CustomerIDNumber" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="CustomerAddress" class="form-label">Address (Optional)</label>
+                            <textarea asp-for="CustomerAddress" class="form-control" rows="2"></textarea>
+                            <span asp-validation-for="CustomerAddress" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Notes" class="form-label">Additional Notes</label>
+                            <textarea asp-for="Notes" class="form-control" rows="2"></textarea>
+                            <span asp-validation-for="Notes" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> Save Changes
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Back to List
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

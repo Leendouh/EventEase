@@ -1,0 +1,87 @@
+﻿@model IEnumerable<EventEase.Models.Booking>
+
+@{
+    ViewData["Title"] = $"Bookings for {ViewBag.CustomerPhone}";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="display-6">
+            <i class="bi bi-person-badge"></i> Customer Bookings
+        </h1>
+        <div>
+            <a asp-action="Create" class="btn btn-info text-white">
+                <i class="bi bi-plus-circle"></i> New Booking
+            </a>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to All Bookings
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">
+                <i class="bi bi-telephone"></i> Customer Phone: @ViewBag.CustomerPhone
+            </h5>
+        </div>
+        <div class="card-body">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Booking #</th>
+                                <th>Date</th>
+                                <th>Customer</th>
+                                <th>Event</th>
+                                <th>Venue</th>
+                                <th>Start Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td><span class="badge bg-secondary">@item.BookingNumber</span></td>
+                                    <td>@item.BookingDate.ToString("dd MMM yyyy")</td>
+                                    <td>
+                                        @item.CustomerName @item.CustomerSurname<br />
+                                        <small class="text-muted">@item.CustomerPhone</small>
+                                    </td>
+                                    <td>@(item.Event?.EventName ?? "N/A")</td>
+                                    <td>@(item.Venue?.VenueName ?? "N/A")</td>
+                                    <td>@item.StartDate.ToString("dd MMM yyyy HH:mm")</td>
+                                    <td>
+                                        <span class="badge bg-@(item.Status == "Confirmed" ? "success" :
+                                                                                          item.Status == "Pending" ? "warning" :
+                                                                                          item.Status == "Cancelled" ? "danger" : "secondary")">
+                                    @item.Status
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a asp-action="Details" asp-route-id="@item.BookingId"
+                                       class="btn btn-sm btn-outline-info">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                                                }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> No bookings found for this customer.
+                </div>
+            }
+        </div>
+    </div>
+</div>

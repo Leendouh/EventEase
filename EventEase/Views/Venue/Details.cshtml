@@ -1,0 +1,80 @@
+﻿@model EventEase.Models.Venue
+
+@{
+    ViewData["Title"] = "Venue Details";
+}
+
+<div class="container mt-4">
+    <h1 class="display-6 mb-4">
+        <i class="bi bi-info-circle"></i> Venue Details
+    </h1>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <img src="@Model.ImageUrl" class="img-fluid rounded" alt="@Model.VenueName">
+                        </div>
+                        <div class="col-md-6">
+                            <h3>@Model.VenueName</h3>
+                            <p><strong>Venue ID:</strong> @Model.FormattedVenueId</p>
+                            <p><strong>Location:</strong> @Model.Location</p>
+                            <p><strong>Capacity:</strong> @Model.Capacity attendees</p>
+                            <p>
+                                <strong>Status:</strong>
+                                <span class="badge bg-@(Model.IsAvailable ? "success" : "secondary")">
+                                    @(Model.IsAvailable ? "Available" : "Unavailable")
+                                </span>
+                            </p>
+                            <p><strong>Created Date:</strong> @Model.CreatedDate.ToString("dd MMM yyyy")</p>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <h5>Description</h5>
+                    <p>@Model.Description</p>
+
+                    <hr />
+
+                    <h5>Events at this Venue</h5>
+                    @if (Model.Events != null && Model.Events.Any())
+                    {
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Event</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var ev in Model.Events)
+                                {
+                                    <tr>
+                                        <td>@ev.EventName</td>
+                                        <td>@ev.EventDate.ToString("dd MMM yyyy")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No events scheduled at this venue.</p>
+                    }
+
+                    <div class="mt-4">
+                        <a asp-action="Edit" asp-route-id="@Model.VenueId" class="btn btn-warning">
+                            <i class="bi bi-pencil"></i> Edit
+                        </a>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

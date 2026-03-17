@@ -1,0 +1,64 @@
+﻿@model EventEase.Models.Booking
+
+@{
+    ViewData["Title"] = "Cancel Booking";
+}
+
+<div class="container mt-4">
+    <h1 class="display-6 mb-4 text-danger">
+        <i class="bi bi-exclamation-triangle"></i> Cancel Booking
+    </h1>
+
+    <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle"></i> Are you sure you want to cancel this booking? This action cannot be undone.
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Booking #@Model.BookingNumber</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-3">Customer:</dt>
+                        <dd class="col-sm-9">@Model.CustomerName @Model.CustomerSurname</dd>
+
+                        <dt class="col-sm-3">Phone:</dt>
+                        <dd class="col-sm-9">@Model.CustomerPhone</dd>
+
+                        <dt class="col-sm-3">Event:</dt>
+                        <dd class="col-sm-9">@(Model.Event?.EventName ?? "N/A")</dd>
+
+                        <dt class="col-sm-3">Venue:</dt>
+                        <dd class="col-sm-9">@(Model.Venue?.VenueName ?? "N/A")</dd>
+
+                        <dt class="col-sm-3">Start Date:</dt>
+                        <dd class="col-sm-9">@Model.StartDate.ToString("dd MMM yyyy HH:mm")</dd>
+
+                        <dt class="col-sm-3">End Date:</dt>
+                        <dd class="col-sm-9">@Model.EndDate.ToString("dd MMM yyyy HH:mm")</dd>
+
+                        <dt class="col-sm-3">Current Status:</dt>
+                        <dd class="col-sm-9">
+                            <span class="badge bg-@(Model.Status == "Confirmed" ? "success" :
+                                                                  Model.Status == "Pending" ? "warning" : "secondary")">
+                                @Model.Status
+                            </span>
+                        </dd>
+                    </dl>
+
+                    <form asp-action="Cancel" method="post">
+                        <input type="hidden" asp-for="BookingId" />
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-x-circle"></i> Confirm Cancellation
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Go Back
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

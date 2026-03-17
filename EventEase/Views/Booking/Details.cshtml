@@ -1,0 +1,124 @@
+﻿@model EventEase.Models.Booking
+
+@{
+    ViewData["Title"] = "Booking Details";
+}
+
+<div class="container mt-4">
+    <h1 class="display-6 mb-4">
+        <i class="bi bi-info-circle"></i> Booking Details
+    </h1>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Booking #@Model.BookingNumber</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-primary">Booking Information</h6>
+                            <hr />
+                            <dl class="row">
+                                <dt class="col-sm-5">Booking ID:</dt>
+                                <dd class="col-sm-7">@Model.FormattedBookingId</dd>
+
+                                <dt class="col-sm-5">Booking Date:</dt>
+                                <dd class="col-sm-7">@Model.BookingDate.ToString("dd MMM yyyy HH:mm")</dd>
+
+                                <dt class="col-sm-5">Status:</dt>
+                                <dd class="col-sm-7">
+                                    <span class="badge bg-@(Model.Status == "Confirmed" ? "success" :
+                                                                                  Model.Status == "Pending" ? "warning" :
+                                                                                  Model.Status == "Cancelled" ? "danger" : "secondary")">
+                                        @Model.Status
+                                    </span>
+                                </dd>
+
+                                <dt class="col-sm-5">Created By:</dt>
+                                <dd class="col-sm-7">@(Model.CreatedByAdmin?.FullName ?? "System")</dd>
+
+                                <dt class="col-sm-5">Created Date:</dt>
+                                <dd class="col-sm-7">@Model.CreatedDate.ToString("dd MMM yyyy HH:mm")</dd>
+                            </dl>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-primary">Event & Venue</h6>
+                            <hr />
+                            <dl class="row">
+                                <dt class="col-sm-5">Event:</dt>
+                                <dd class="col-sm-7">
+                                    <a asp-controller="Event" asp-action="Details" asp-route-id="@Model.EventId">
+                                        @(Model.Event?.EventName ?? "N/A")
+                                    </a>
+                                </dd>
+
+                                <dt class="col-sm-5">Venue:</dt>
+                                <dd class="col-sm-7">
+                                    <a asp-controller="Venue" asp-action="Details" asp-route-id="@Model.VenueId">
+                                        @(Model.Venue?.VenueName ?? "N/A")
+                                    </a>
+                                </dd>
+
+                                <dt class="col-sm-5">Start Date:</dt>
+                                <dd class="col-sm-7">@Model.StartDate.ToString("dd MMM yyyy HH:mm")</dd>
+
+                                <dt class="col-sm-5">End Date:</dt>
+                                <dd class="col-sm-7">@Model.EndDate.ToString("dd MMM yyyy HH:mm")</dd>
+
+                                <dt class="col-sm-5">Duration:</dt>
+                                <dd class="col-sm-7">
+                                    @{
+                                        var duration = Model.EndDate - Model.StartDate;
+                                        @($"{duration.Hours} hours {duration.Minutes} minutes")
+                                    }
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <h6 class="text-primary mt-4">Customer Information</h6>
+                    <hr />
+                    <dl class="row">
+                        <dt class="col-sm-2">Name:</dt>
+                        <dd class="col-sm-10">@Model.CustomerName @Model.CustomerSurname</dd>
+
+                        <dt class="col-sm-2">Phone:</dt>
+                        <dd class="col-sm-10">@Model.CustomerPhone</dd>
+
+                        <dt class="col-sm-2">Email:</dt>
+                        <dd class="col-sm-10">@Model.CustomerEmail</dd>
+
+                        <dt class="col-sm-2">ID Number:</dt>
+                        <dd class="col-sm-10">@Model.CustomerIDNumber</dd>
+
+                        <dt class="col-sm-2">Address:</dt>
+                        <dd class="col-sm-10">@Model.CustomerAddress</dd>
+
+                        @if (!string.IsNullOrEmpty(Model.Notes))
+                        {
+                            <dt class="col-sm-2">Notes:</dt>
+                            <dd class="col-sm-10">@Model.Notes</dd>
+                        }
+                    </dl>
+
+                    <div class="mt-4">
+                        @if (Model.Status != "Cancelled")
+                        {
+                            <a asp-action="Edit" asp-route-id="@Model.BookingId" class="btn btn-warning">
+                                <i class="bi bi-pencil"></i> Edit
+                            </a>
+                            <a asp-action="Cancel" asp-route-id="@Model.BookingId" class="btn btn-danger">
+                                <i class="bi bi-x-circle"></i> Cancel Booking
+                            </a>
+                        }
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

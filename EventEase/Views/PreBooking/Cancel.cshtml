@@ -1,0 +1,84 @@
+﻿@model EventEase.Models.PreBooking
+
+@{
+    ViewData["Title"] = "Cancel Pre-Booking";
+}
+
+<div class="container mt-4">
+    <h1 class="display-6 mb-4 text-danger">
+        <i class="bi bi-exclamation-triangle"></i> Cancel Pre-Booking
+    </h1>
+
+    <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle"></i> Are you sure you want to cancel this pre-booking? This action cannot be undone.
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">@Model.FormattedPreBookingId - @Model.EventName</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-3">Customer:</dt>
+                        <dd class="col-sm-9">@Model.CustomerName</dd>
+
+                        <dt class="col-sm-3">Phone:</dt>
+                        <dd class="col-sm-9">@Model.CustomerPhone</dd>
+
+                        <dt class="col-sm-3">Email:</dt>
+                        <dd class="col-sm-9">@Model.CustomerEmail</dd>
+
+                        <dt class="col-sm-3">Event:</dt>
+                        <dd class="col-sm-9">@Model.EventName</dd>
+
+                        <dt class="col-sm-3">Preferred Venue:</dt>
+                        <dd class="col-sm-9">@(Model.PreferredVenue?.VenueName ?? "No preference")</dd>
+
+                        <dt class="col-sm-3">Preferred Dates:</dt>
+                        <dd class="col-sm-9">
+                            @if (Model.PreferredStartDate.HasValue)
+                            {
+                                @Model.PreferredStartDate.Value.ToString("dd MMM yyyy")
+                                @if (Model.PreferredEndDate.HasValue)
+                                {
+                                    <span> - @Model.PreferredEndDate.Value.ToString("dd MMM yyyy")</span>
+                                }
+                            }
+                            else
+                            {
+                                <span>Not specified</span>
+                            }
+                        </dd>
+
+                        <dt class="col-sm-3">Current Status:</dt>
+                        <dd class="col-sm-9">
+                            @{
+                                string badgeClass = Model.Status switch
+                                {
+                                    "Waiting" => "warning",
+                                    "Notified" => "info",
+                                    "Converted" => "success",
+                                    "Expired" => "secondary",
+                                    _ => "secondary"
+                                };
+                            }
+                            <span class="badge bg-@badgeClass">@Model.Status</span>
+                        </dd>
+                    </dl>
+
+                    <form asp-action="Cancel" method="post">
+                        <input type="hidden" asp-for="PreBookingId" />
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-x-circle"></i> Confirm Cancellation
+                        </button>
+                        <a asp-action="Details" asp-route-id="@Model.PreBookingId" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Go Back
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,99 @@
+﻿@model EventEase.Models.Event
+
+@{
+    ViewData["Title"] = "Event Details";
+}
+
+<div class="container mt-4">
+    <h1 class="display-6 mb-4">
+        <i class="bi bi-info-circle"></i> Event Details
+    </h1>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h3>@Model.EventName</h3>
+                    <p><strong>Event ID:</strong> @Model.FormattedEventId</p>
+                    <p><strong>Date:</strong> @Model.EventDate.ToString("dddd, dd MMMM yyyy")</p>
+                    <p><strong>Expected Attendees:</strong> @(Model.ExpectedAttendees?.ToString() ?? "Not specified")</p>
+                    <p>
+                        <strong>Venue:</strong> 
+                        @if (Model.Venue != null)
+                        {
+                            <a asp-controller="Venue" asp-action="Details" asp-route-id="@Model.VenueId">
+                                @Model.Venue.VenueName
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="text-muted">No venue assigned</span>
+                        }
+                    </p>
+                    <p>
+                        <strong>Status:</strong>
+                        @if (Model.IsVenueConfirmed)
+                        {
+                            <span class="badge bg-success">Venue Confirmed</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning">Venue Not Confirmed</span>
+                        }
+                    </p>
+                    <p><strong>Created Date:</strong> @Model.CreatedDate.ToString("dd MMM yyyy HH:mm")</p>
+
+                    <hr />
+                    
+                    <h5>Description</h5>
+                    <p>@Model.Description</p>
+                    
+                    <hr />
+                    
+                    <h5>Bookings for this Event</h5>
+                    @if (Model.Bookings != null && Model.Bookings.Any())
+                    {
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Booking #</th>
+                                    <th>Customer</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var booking in Model.Bookings)
+                                {
+                                    <tr>
+                                        <td>@booking.BookingNumber</td>
+                                        <td>@booking.CustomerName @booking.CustomerSurname</td>
+                                        <td>@booking.StartDate.ToString("dd MMM yyyy")</td>
+                                        <td>
+                                            <span class="badge bg-@(booking.Status == "Confirmed" ? "success" : "warning")">
+                                                @booking.Status
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No bookings for this event.</p>
+                    }
+                    
+                    <div class="mt-4">
+                        <a asp-action="Edit" asp-route-id="@Model.EventId" class="btn btn-warning">
+                            <i class="bi bi-pencil"></i> Edit
+                        </a>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

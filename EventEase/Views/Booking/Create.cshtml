@@ -1,0 +1,222 @@
+﻿@model EventEase.Models.Booking
+
+@{
+    ViewData["Title"] = "Create Booking";
+}
+
+<div class="container mt-4">
+    <h1 class="display-6 mb-4">
+        <i class="bi bi-plus-circle"></i> Create New Booking
+    </h1>
+
+    @if (ViewBag.Events == null || ((SelectList)ViewBag.Events).Count() == 0 ||
+        ViewBag.Venues == null || ((SelectList)ViewBag.Venues).Count() == 0)
+    {
+        <div class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle"></i>
+            <strong>Unable to load booking form.</strong>
+            Please ensure you have at least one event and one available venue in the system.
+            <hr />
+            <a asp-controller="Event" asp-action="Create" class="btn btn-sm btn-success">Create Event</a>
+            <a asp-controller="Venue" asp-action="Create" class="btn btn-sm btn-primary">Create Venue</a>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card shadow">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">Booking Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="Create" id="bookingForm">
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                            <h6 class="text-primary">Event Information</h6>
+                            <hr />
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="EventId" class="form-label">Select Event</label>
+                                        <select asp-for="EventId" class="form-select" asp-items="ViewBag.Events">
+                                            <option value="">-- Select Event --</option>
+                                        </select>
+                                        <span asp-validation-for="EventId" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="VenueId" class="form-label">Select Venue</label>
+                                        <select asp-for="VenueId" class="form-select" asp-items="ViewBag.Venues">
+                                            <option value="">-- Select Venue --</option>
+                                        </select>
+                                        <span asp-validation-for="VenueId" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="StartDate" class="form-label">Start Date & Time</label>
+                                        <input asp-for="StartDate" class="form-control" type="datetime-local"
+                                               id="startDate" min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
+                                        <span asp-validation-for="StartDate" class="text-danger"></span>
+                                        <small class="text-muted">Must be today or later</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="EndDate" class="form-label">End Date & Time</label>
+                                        <input asp-for="EndDate" class="form-control" type="datetime-local"
+                                               id="endDate" />
+                                        <span asp-validation-for="EndDate" class="text-danger"></span>
+                                        <small class="text-muted">Must be after start date</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h6 class="text-primary mt-4">Customer Information</h6>
+                            <hr />
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="CustomerName" class="form-label"></label>
+                                        <input asp-for="CustomerName" class="form-control" />
+                                        <span asp-validation-for="CustomerName" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="CustomerSurname" class="form-label"></label>
+                                        <input asp-for="CustomerSurname" class="form-control" />
+                                        <span asp-validation-for="CustomerSurname" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="CustomerPhone" class="form-label"></label>
+                                        <input asp-for="CustomerPhone" class="form-control" />
+                                        <span asp-validation-for="CustomerPhone" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="CustomerEmail" class="form-label"></label>
+                                        <input asp-for="CustomerEmail" class="form-control" type="email" />
+                                        <span asp-validation-for="CustomerEmail" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label asp-for="CustomerIDNumber" class="form-label">ID/Passport Number (Optional)</label>
+                                <input asp-for="CustomerIDNumber" class="form-control" />
+                                <span asp-validation-for="CustomerIDNumber" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label asp-for="CustomerAddress" class="form-label">Address (Optional)</label>
+                                <textarea asp-for="CustomerAddress" class="form-control" rows="2"></textarea>
+                                <span asp-validation-for="CustomerAddress" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label asp-for="Notes" class="form-label">Additional Notes</label>
+                                <textarea asp-for="Notes" class="form-control" rows="2"></textarea>
+                                <span asp-validation-for="Notes" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-circle"></i> Create Booking
+                                </button>
+                                <a asp-action="Index" class="btn btn-secondary">
+                                    <i class="bi bi-arrow-left"></i> Back to List
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="bi bi-info-circle"></i> Important Notes</h5>
+                        <ul class="small">
+                            <li>The system will automatically check venue availability</li>
+                            <li>Double bookings are prevented</li>
+                            <li>Customer phone number is required</li>
+                            <li>Start date must be today or later</li>
+                            <li>End date must be after start date</li>
+                            <li>Booking number is auto-generated</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function() {
+            // Get today's date and time in the format required for datetime-local
+            var today = new Date();
+            var year = today.getFullYear();
+            var month = String(today.getMonth() + 1).padStart(2, '0');
+            var day = String(today.getDate()).padStart(2, '0');
+            var hours = String(today.getHours()).padStart(2, '0');
+            var minutes = String(today.getMinutes()).padStart(2, '0');
+
+            var currentDateTime = year + '-' + month + '-' + day + 'T' + hours + ':' + minutes;
+
+            // Set min attribute for start date
+            $('#startDate').attr('min', currentDateTime);
+
+            // When start date changes, update end date min
+            $('#startDate').on('change', function() {
+                var startDate = $(this).val();
+                $('#endDate').attr('min', startDate);
+
+                // If end date is less than start date, clear it
+                var endDate = $('#endDate').val();
+                if (endDate && endDate < startDate) {
+                    $('#endDate').val('');
+                }
+            });
+
+            // Validate form before submission
+            $('#bookingForm').on('submit', function(e) {
+                var startDate = new Date($('#startDate').val());
+                var endDate = new Date($('#endDate').val());
+                var now = new Date();
+
+                // Check if start date is in the past
+                if (startDate < now) {
+                    e.preventDefault();
+                    alert('Start date cannot be in the past. Please select a future date.');
+                    return false;
+                }
+
+                // Check if end date is after start date
+                if (endDate <= startDate) {
+                    e.preventDefault();
+                    alert('End date must be after start date.');
+                    return false;
+                }
+
+                return true;
+            });
+        });
+    </script>
+}
