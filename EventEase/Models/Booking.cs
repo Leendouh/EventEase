@@ -56,7 +56,7 @@ namespace EventEase.Models
 
         [Display(Name = "ID/Passport Number")]
         [StringLength(20)]
-        public string CustomerIDNumber { get; set; } = string.Empty;
+        public string? CustomerIDNumber { get; set; }
 
         [Required(ErrorMessage = "Phone number is required")]
         [Display(Name = "Phone Number")]
@@ -71,7 +71,7 @@ namespace EventEase.Models
 
         [Display(Name = "Address")]
         [StringLength(200)]
-        public string CustomerAddress { get; set; } = string.Empty;
+        public string? CustomerAddress { get; set; }
 
         [Required]
         public int EventId { get; set; }

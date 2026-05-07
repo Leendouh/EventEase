@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EventEase.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260317194151_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260505124658_UpdateBookingOptionalFields")]
+    partial class UpdateBookingOptionalFields
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -171,7 +171,6 @@ namespace EventEase.Migrations
                         .HasDefaultValueSql("GETDATE()");
 
                     b.Property<string>("CustomerAddress")
-                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
@@ -181,7 +180,6 @@ namespace EventEase.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("CustomerIDNumber")
-                        .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 

@@ -26,7 +26,6 @@ namespace EventEase.Models
 
         [Display(Name = "Venue Image")]
         [DataType(DataType.ImageUrl)]
-        [Url(ErrorMessage = "Please enter a valid URL")]
         public string ImageUrl { get; set; } = string.Empty;
 
         [StringLength(500, ErrorMessage = "Description cannot exceed 500 characters")]
