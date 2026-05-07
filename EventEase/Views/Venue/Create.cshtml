@@ -13,7 +13,7 @@
         <div class="col-md-8">
             <div class="card shadow">
                 <div class="card-body">
-                    <form asp-action="Create">
+                    <form asp-action="Create" enctype="multipart/form-data">
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
                         <div class="form-group mb-3">
@@ -35,10 +35,12 @@
                         </div>
 
                         <div class="form-group mb-3">
-                            <label asp-for="ImageUrl" class="form-label"></label>
-                            <input asp-for="ImageUrl" class="form-control" placeholder="https://example.com/image.jpg" />
-                            <span asp-validation-for="ImageUrl" class="text-danger"></span>
-                            <small class="form-text text-muted">Enter a URL for the venue image</small>
+                            <label for="imageFile" class="form-label">Venue Image</label>
+                            <input type="file" id="imageFile" name="imageFile" class="form-control" accept="image/*" />
+                            <small class="form-text text-muted">Upload an image for the venue (JPG, PNG, GIF)</small>
+                            <div id="imagePreview" class="mt-2" style="display: none;">
+                                <img id="previewImg" src="" alt="Image preview" class="img-thumbnail" style="max-height: 200px;" />
+                            </div>
                         </div>
 
                         <div class="form-group mb-3">
@@ -73,4 +75,44 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    
+    <script>
+        document.getElementById('imageFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const preview = document.getElementById('imagePreview');
+            const previewImg = document.getElementById('previewImg');
+            
+            console.log('File selected:', file);
+            if (file) {
+                console.log('File details:', {
+                    name: file.name,
+                    size: file.size,
+                    type: file.type
+                });
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    preview.style.display = 'block';
+                    console.log('Image preview loaded');
+                }
+                reader.readAsDataURL(file);
+            } else {
+                preview.style.display = 'none';
+            }
+        });
+        
+        // Add form submission debugging
+        document.querySelector('form').addEventListener('submit', function(e) {
+            console.log('Form submitting...');
+            const formData = new FormData(this);
+            console.log('Form data:');
+            for (let [key, value] of formData.entries()) {
+                if (value instanceof File) {
+                    console.log(key, 'File:', value.name, 'Size:', value.size);
+                } else {
+                    console.log(key, value);
+                }
+            }
+        });
+    </script>
 }

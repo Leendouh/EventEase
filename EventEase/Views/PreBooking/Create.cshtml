@@ -80,13 +80,17 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label asp-for="PreferredStartDate" class="form-label"></label>
-                                <input asp-for="PreferredStartDate" class="form-control" type="date" />
+                                <input asp-for="PreferredStartDate" class="form-control" type="date" 
+                                       id="preferredStartDate" min="@DateTime.Now.ToString("yyyy-MM-dd")" />
                                 <span asp-validation-for="PreferredStartDate" class="text-danger"></span>
+                                <div class="invalid-feedback" id="startDateError" style="display: none;"></div>
                             </div>
                             <div class="col-md-6">
                                 <label asp-for="PreferredEndDate" class="form-label"></label>
-                                <input asp-for="PreferredEndDate" class="form-control" type="date" />
+                                <input asp-for="PreferredEndDate" class="form-control" type="date" 
+                                       id="preferredEndDate" min="@DateTime.Now.ToString("yyyy-MM-dd")" />
                                 <span asp-validation-for="PreferredEndDate" class="text-danger"></span>
+                                <div class="invalid-feedback" id="endDateError" style="display: none;"></div>
                             </div>
                         </div>
 
@@ -116,11 +120,98 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
     <script>
-        // Ensure end date is after start date
         $(document).ready(function() {
-            $('#PreferredStartDate').on('change', function() {
+            var today = new Date().toISOString().split('T')[0];
+            
+            // Real-time validation for start date
+            $('#preferredStartDate').on('change blur', function() {
                 var startDate = $(this).val();
-                $('#PreferredEndDate').attr('min', startDate);
+                var endDate = $('#preferredEndDate').val();
+                var $startDateError = $('#startDateError');
+                var $endDate = $('#preferredEndDate');
+                
+                // Clear previous errors
+                $(this).removeClass('is-invalid');
+                $startDateError.hide();
+                
+                if (startDate) {
+                    // Check if start date is in the past
+                    if (startDate < today) {
+                        $(this).addClass('is-invalid');
+                        $startDateError.text('Start date cannot be in the past').show();
+                        return;
+                    }
+                    
+                    // Update end date minimum
+                    $endDate.attr('min', startDate);
+                    
+                    // Check if end date is before start date
+                    if (endDate && endDate < startDate) {
+                        $endDate.addClass('is-invalid');
+                        $('#endDateError').text('End date must be after or equal to start date').show();
+                    } else {
+                        $endDate.removeClass('is-invalid');
+                        $('#endDateError').hide();
+                    }
+                }
+            });
+            
+            // Real-time validation for end date
+            $('#preferredEndDate').on('change blur', function() {
+                var endDate = $(this).val();
+                var startDate = $('#preferredStartDate').val();
+                var $endDateError = $('#endDateError');
+                
+                // Clear previous errors
+                $(this).removeClass('is-invalid');
+                $endDateError.hide();
+                
+                if (endDate) {
+                    // Check if end date is in the past
+                    if (endDate < today) {
+                        $(this).addClass('is-invalid');
+                        $endDateError.text('End date cannot be in the past').show();
+                        return;
+                    }
+                    
+                    // Check if end date is before start date
+                    if (startDate && endDate < startDate) {
+                        $(this).addClass('is-invalid');
+                        $endDateError.text('End date must be after or equal to start date').show();
+                    }
+                }
+            });
+            
+            // Form submission validation
+            $('form').on('submit', function(e) {
+                var startDate = $('#preferredStartDate').val();
+                var endDate = $('#preferredEndDate').val();
+                var hasError = false;
+                
+                // Validate start date
+                if (startDate && startDate < today) {
+                    $('#preferredStartDate').addClass('is-invalid');
+                    $('#startDateError').text('Start date cannot be in the past').show();
+                    hasError = true;
+                }
+                
+                // Validate end date
+                if (endDate) {
+                    if (endDate < today) {
+                        $('#preferredEndDate').addClass('is-invalid');
+                        $('#endDateError').text('End date cannot be in the past').show();
+                        hasError = true;
+                    } else if (startDate && endDate < startDate) {
+                        $('#preferredEndDate').addClass('is-invalid');
+                        $('#endDateError').text('End date must be after or equal to start date').show();
+                        hasError = true;
+                    }
+                }
+                
+                if (hasError) {
+                    e.preventDefault();
+                    return false;
+                }
             });
         });
     </script>

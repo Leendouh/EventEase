@@ -48,11 +48,21 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label asp-for="VenueId" class="form-label">Select Venue</label>
-                                        <select asp-for="VenueId" class="form-select" asp-items="ViewBag.Venues">
+                                        <select asp-for="VenueId" class="form-select" asp-items="ViewBag.Venues" id="venueSelect">
                                             <option value="">-- Select Venue --</option>
                                         </select>
                                         <span asp-validation-for="VenueId" class="text-danger"></span>
                                     </div>
+                                </div>
+                            </div>
+
+                            <!-- Real-time Venue Availability Check -->
+                            <div id="venueAvailabilityAlert" class="alert" style="display: none;">
+                                <div class="d-flex align-items-center">
+                                    <div class="spinner-border spinner-border-sm me-2" id="availabilitySpinner" role="status" style="display: none;">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <div id="availabilityMessage"></div>
                                 </div>
                             </div>
 
@@ -63,6 +73,7 @@
                                         <input asp-for="StartDate" class="form-control" type="datetime-local"
                                                id="startDate" min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
                                         <span asp-validation-for="StartDate" class="text-danger"></span>
+                                        <div class="invalid-feedback" id="startDateError" style="display: none;"></div>
                                         <small class="text-muted">Must be today or later</small>
                                     </div>
                                 </div>
@@ -72,6 +83,7 @@
                                         <input asp-for="EndDate" class="form-control" type="datetime-local"
                                                id="endDate" />
                                         <span asp-validation-for="EndDate" class="text-danger"></span>
+                                        <div class="invalid-feedback" id="endDateError" style="display: none;"></div>
                                         <small class="text-muted">Must be after start date</small>
                                     </div>
                                 </div>
@@ -183,39 +195,175 @@
             // Set min attribute for start date
             $('#startDate').attr('min', currentDateTime);
 
-            // When start date changes, update end date min
-            $('#startDate').on('change', function() {
+            // Real-time validation for start date
+            $('#startDate').on('change blur', function() {
                 var startDate = $(this).val();
-                $('#endDate').attr('min', startDate);
-
-                // If end date is less than start date, clear it
                 var endDate = $('#endDate').val();
-                if (endDate && endDate < startDate) {
-                    $('#endDate').val('');
+                var $startDateError = $('#startDateError');
+                var $endDate = $('#endDate');
+                
+                // Clear previous errors
+                $(this).removeClass('is-invalid');
+                $startDateError.hide();
+                
+                if (startDate) {
+                    // Check if start date is in the past
+                    var startDateObj = new Date(startDate);
+                    if (startDateObj < today) {
+                        $(this).addClass('is-invalid');
+                        $startDateError.text('Start date cannot be in the past').show();
+                        return;
+                    }
+                    
+                    // Update end date minimum
+                    $endDate.attr('min', startDate);
+                    
+                    // Check if end date is before start date
+                    if (endDate && new Date(endDate) <= startDateObj) {
+                        $endDate.addClass('is-invalid');
+                        $('#endDateError').text('End date must be after start date').show();
+                    } else {
+                        $endDate.removeClass('is-invalid');
+                        $('#endDateError').hide();
+                    }
+                }
+            });
+            
+            // Real-time validation for end date
+            $('#endDate').on('change blur', function() {
+                var endDate = $(this).val();
+                var startDate = $('#startDate').val();
+                var $endDateError = $('#endDateError');
+                
+                // Clear previous errors
+                $(this).removeClass('is-invalid');
+                $endDateError.hide();
+                
+                if (endDate && startDate) {
+                    var endDateObj = new Date(endDate);
+                    var startDateObj = new Date(startDate);
+                    
+                    // Check if end date is before or equal to start date
+                    if (endDateObj <= startDateObj) {
+                        $(this).addClass('is-invalid');
+                        $endDateError.text('End date must be after start date').show();
+                    }
                 }
             });
 
             // Validate form before submission
             $('#bookingForm').on('submit', function(e) {
-                var startDate = new Date($('#startDate').val());
-                var endDate = new Date($('#endDate').val());
-                var now = new Date();
-
-                // Check if start date is in the past
-                if (startDate < now) {
+                var startDate = $('#startDate').val();
+                var endDate = $('#endDate').val();
+                var hasError = false;
+                
+                // Validate start date
+                if (startDate && new Date(startDate) < today) {
+                    $('#startDate').addClass('is-invalid');
+                    $('#startDateError').text('Start date cannot be in the past').show();
+                    hasError = true;
+                }
+                
+                // Validate end date
+                if (endDate && startDate) {
+                    if (new Date(endDate) <= new Date(startDate)) {
+                        $('#endDate').addClass('is-invalid');
+                        $('#endDateError').text('End date must be after start date').show();
+                        hasError = true;
+                    }
+                }
+                
+                if (hasError) {
                     e.preventDefault();
-                    alert('Start date cannot be in the past. Please select a future date.');
                     return false;
                 }
-
-                // Check if end date is after start date
-                if (endDate <= startDate) {
-                    e.preventDefault();
-                    alert('End date must be after start date.');
-                    return false;
-                }
-
+                
                 return true;
+            });
+
+            // Real-time venue availability checking
+            var availabilityCheckTimeout;
+            
+            function checkVenueAvailability() {
+                var venueId = $('#venueSelect').val();
+                var startDate = $('#startDate').val();
+                var endDate = $('#endDate').val();
+                
+                // Clear previous timeout
+                clearTimeout(availabilityCheckTimeout);
+                
+                // Only check if all fields are filled
+                if (!venueId || !startDate || !endDate) {
+                    $('#venueAvailabilityAlert').hide();
+                    return;
+                }
+                
+                // Validate dates before checking availability
+                var startDateObj = new Date(startDate);
+                var endDateObj = new Date(endDate);
+                var today = new Date();
+                
+                if (startDateObj < today || endDateObj <= startDateObj) {
+                    return;
+                }
+                
+                // Show loading state
+                $('#venueAvailabilityAlert').removeClass('alert-success alert-danger alert-warning').addClass('alert-info');
+                $('#availabilitySpinner').show();
+                $('#availabilityMessage').text('Checking venue availability...');
+                $('#venueAvailabilityAlert').show();
+                
+                // Debounce the API call
+                availabilityCheckTimeout = setTimeout(function() {
+                    $.ajax({
+                        url: '@Url.Action("CheckVenueAvailability", "Booking")',
+                        type: 'GET',
+                        data: {
+                            venueId: venueId,
+                            startDate: startDate,
+                            endDate: endDate
+                        },
+                        success: function(response) {
+                            $('#availabilitySpinner').hide();
+                            
+                            if (response.available) {
+                                $('#venueAvailabilityAlert').removeClass('alert-info alert-danger alert-warning').addClass('alert-success');
+                                $('#availabilityMessage').html('<i class="bi bi-check-circle-fill"></i> ' + response.message);
+                                
+                                // Enable submit button if venue is available
+                                $('button[type="submit"]').prop('disabled', false);
+                            } else {
+                                $('#venueAvailabilityAlert').removeClass('alert-info alert-success alert-warning').addClass('alert-danger');
+                                var message = '<i class="bi bi-exclamation-triangle-fill"></i> <strong>Venue Not Available!</strong><br>' + response.message;
+                                
+                                if (response.conflictingBooking) {
+                                    message += '<br><small class="text-muted">Conflicting Booking: ' + response.conflictingBooking.bookingNumber + '</small>';
+                                }
+                                
+                                $('#availabilityMessage').html(message);
+                                
+                                // Disable submit button if venue is not available
+                                $('button[type="submit"]').prop('disabled', true);
+                            }
+                        },
+                        error: function() {
+                            $('#availabilitySpinner').hide();
+                            $('#venueAvailabilityAlert').removeClass('alert-info alert-success alert-danger').addClass('alert-warning');
+                            $('#availabilityMessage').html('<i class="bi bi-exclamation-triangle-fill"></i> Unable to check venue availability. Please try again.');
+                            $('button[type="submit"]').prop('disabled', false); // Allow submission on error
+                        }
+                    });
+                }, 500); // 500ms debounce
+            }
+            
+            // Bind change events to trigger availability check
+            $('#venueSelect, #startDate, #endDate').on('change', function() {
+                checkVenueAvailability();
+            });
+            
+            // Also check on blur for better UX
+            $('#venueSelect, #startDate, #endDate').on('blur', function() {
+                checkVenueAvailability();
             });
         });
     </script>

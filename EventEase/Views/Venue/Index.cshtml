@@ -60,8 +60,20 @@
         {
             <div class="col-md-4 mb-4">
                 <div class="card h-100 shadow-sm">
-                    <img src="@item.ImageUrl" class="card-img-top" alt="@item.VenueName"
-                         style="height: 200px; object-fit: cover;">
+                    @if (!string.IsNullOrEmpty(item.ImageUrl) && Uri.TryCreate(item.ImageUrl, UriKind.Absolute, out _))
+                    {
+                        <img src="@item.ImageUrl" class="card-img-top" alt="@item.VenueName"
+                             style="height: 200px; object-fit: cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="image-placeholder card-img-top" style="display: none;">
+                            <i class="bi bi-building"></i>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="image-placeholder card-img-top">
+                            <i class="bi bi-building"></i>
+                        </div>
+                    }
                     <div class="card-body">
                         <h5 class="card-title">@item.VenueName</h5>
                         <p class="card-text text-muted">
