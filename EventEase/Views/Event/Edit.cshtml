@@ -56,6 +56,18 @@
                             <label asp-for="IsVenueConfirmed" class="form-check-label">Venue Confirmed</label>
                         </div>
 
+                        <div class="form-group mb-3">
+                            <label class="form-label">Event Image</label>
+                            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                            {
+                                <div class="mb-2">
+                                    <img src="@Model.ImageUrl" alt="Current Event Image" style="max-width: 200px; max-height: 150px;" class="img-thumbnail" />
+                                </div>
+                            }
+                            <input type="file" name="imageFile" class="form-control" accept="image/*" />
+                            <small class="text-muted">Upload a new image to replace the current one (optional)</small>
+                        </div>
+
                         <div class="form-group">
                             <button type="submit" class="btn btn-primary">
                                 <i class="bi bi-save"></i> Save Changes
