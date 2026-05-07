@@ -1,15 +1,22 @@
 ﻿@model EventEase.Models.ViewModels.BookingSearchViewModel
 
 @{
-    ViewData["Title"] = "Bookings";
+    ViewData["Title"] = "Booking Management";
 }
 
 <div class="container mt-4">
+    <!-- Header with Actions -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="display-6">
-            <i class="bi bi-journal-bookmark-fill"></i> Bookings
-        </h1>
         <div>
+            <h1 class="display-6">
+                <i class="bi bi-journal-bookmark-fill"></i> Booking Management
+            </h1>
+            <p class="text-muted mb-0">Comprehensive booking overview with venue and event details</p>
+        </div>
+        <div>
+            <a asp-action="EnhancedView" class="btn btn-outline-primary me-2">
+                <i class="bi bi-search"></i> Enhanced Search
+            </a>
             <a asp-action="ByCustomer" class="btn btn-outline-secondary me-2">
                 <i class="bi bi-person-badge"></i> Search by Customer
             </a>
@@ -19,42 +26,88 @@
         </div>
     </div>
 
-    <!-- Search Card -->
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Total Bookings</h6>
+                            <h3 class="mb-0">@Model.Bookings.Count()</h3>
+                        </div>
+                        <i class="bi bi-journal-bookmark-fill fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Confirmed</h6>
+                            <h3 class="mb-0">@Model.Bookings.Count(b => b.Status == "Confirmed")</h3>
+                        </div>
+                        <i class="bi bi-check-circle-fill fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Pending</h6>
+                            <h3 class="mb-0">@Model.Bookings.Count(b => b.Status == "Pending")</h3>
+                        </div>
+                        <i class="bi bi-clock-fill fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-danger">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Cancelled</h6>
+                            <h3 class="mb-0">@Model.Bookings.Count(b => b.Status == "Cancelled")</h3>
+                        </div>
+                        <i class="bi bi-x-circle-fill fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Search Card -->
     <div class="card shadow-sm mb-4">
         <div class="card-header bg-white">
             <h5 class="mb-0"><i class="bi bi-search"></i> Search & Filter Bookings</h5>
         </div>
         <div class="card-body">
             <form method="get" asp-action="Index" class="row g-3">
-                <div class="col-md-3">
-                    <label class="form-label">Search</label>
+                <div class="col-md-4">
+                    <label class="form-label">
+                        <i class="bi bi-search"></i> Quick Search (Booking ID or Event Name)
+                    </label>
                     <input type="text" name="searchTerm" value="@Model.SearchTerm" class="form-control"
-                           placeholder="Booking #, customer...">
+                           placeholder="Enter Booking ID or Event Name...">
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label">Start Date</label>
+                <div class="col-md-2">
+                    <label class="form-label"><i class="bi bi-calendar"></i> Start Date</label>
                     <input type="date" name="startDate" value="@Model.StartDate?.ToString("yyyy-MM-dd")" class="form-control">
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label">End Date</label>
+                <div class="col-md-2">
+                    <label class="form-label"><i class="bi bi-calendar"></i> End Date</label>
                     <input type="date" name="endDate" value="@Model.EndDate?.ToString("yyyy-MM-dd")" class="form-control">
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label">Status</label>
+                <div class="col-md-2">
+                    <label class="form-label"><i class="bi bi-flag"></i> Status</label>
                     <select name="status" asp-items="Model.StatusList" class="form-select">
                         <option value="">All Statuses</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">Venue</label>
-                    <select name="venueId" asp-items="Model.VenueList" class="form-select">
-                        <option value="">All Venues</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">Event</label>
-                    <select name="eventId" asp-items="Model.EventList" class="form-select">
-                        <option value="">All Events</option>
                     </select>
                 </div>
                 <div class="col-md-2 d-flex align-items-end">
@@ -62,80 +115,303 @@
                         <i class="bi bi-search"></i> Search
                     </button>
                 </div>
+                <div class="col-md-3">
+                    <label class="form-label"><i class="bi bi-building"></i> Venue</label>
+                    <select name="venueId" asp-items="Model.VenueList" class="form-select">
+                        <option value="">All Venues</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label"><i class="bi bi-calendar-event"></i> Event</label>
+                    <select name="eventId" asp-items="Model.EventList" class="form-select">
+                        <option value="">All Events</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label"><i class="bi bi-person"></i> Customer</label>
+                    <input type="text" name="customerName" value="@ViewBag.CustomerName" class="form-control"
+                           placeholder="Customer name...">
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <a asp-action="Index" class="btn btn-outline-secondary w-100">
+                        <i class="bi bi-arrow-clockwise"></i> Clear
+                    </a>
+                </div>
             </form>
         </div>
     </div>
 
-    <!-- Results -->
+    <!-- Enhanced Results Table -->
     <div class="card shadow">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Booking #</th>
-                            <th>Date</th>
-                            <th>Customer</th>
-                            <th>Event</th>
-                            <th>Venue</th>
-                            <th>Start Date</th>
-                            <th>Status</th>
-                            <th>Booked By</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in Model.Bookings)
-                        {
-                            <tr>
-                                <td><span class="badge bg-secondary">@item.BookingNumber</span></td>
-                                <td>@item.BookingDate.ToString("dd MMM yyyy")</td>
-                                <td>
-                                    @item.CustomerName @item.CustomerSurname<br />
-                                    <small class="text-muted">@item.CustomerPhone</small>
-                                </td>
-                                <td>@(item.Event?.EventName ?? "N/A")</td>
-                                <td>@(item.Venue?.VenueName ?? "N/A")</td>
-                                <td>@item.StartDate.ToString("dd MMM yyyy HH:mm")</td>
-                                <td>
-                                    <span class="badge bg-@(item.Status == "Confirmed" ? "success" :
-                                                                                  item.Status == "Pending" ? "warning" :
-                                                                                  item.Status == "Cancelled" ? "danger" : "secondary")">
-                                    @item.Status
-                                </span>
-                            </td>
-                            <td>@(item.CreatedByAdmin?.FullName ?? "System")</td>
-                            <td>
-                                <div class="btn-group" role="group">
-                                    <a asp-action="Details" asp-route-id="@item.BookingId"
-                                       class="btn btn-sm btn-outline-info">
-                                        <i class="bi bi-eye"></i>
-                                    </a>
-                                    @if (item.Status != "Cancelled")
-                                        {
-                                            <a asp-action="Edit" asp-route-id="@item.BookingId"
-                                               class="btn btn-sm btn-outline-warning">
-                                                <i class="bi bi-pencil"></i>
-                                            </a>
-                                            <a asp-action="Cancel" asp-route-id="@item.BookingId"
-                                               class="btn btn-sm btn-outline-danger">
-                                                <i class="bi bi-x-circle"></i>
-                                            </a>
-                                        }
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="bi bi-list-ul"></i> Booking Results 
+                @if (!string.IsNullOrEmpty(Model.SearchTerm))
+                {
+                    <span class="badge bg-info ms-2">@Model.Bookings.Count() found</span>
+                }
+            </h5>
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-sm btn-outline-primary" onclick="exportBookings()">
+                    <i class="bi bi-download"></i> Export
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="refreshData()">
+                    <i class="bi bi-arrow-clockwise"></i> Refresh
+                </button>
             </div>
-
-            @if (!Model.Bookings.Any())
+        </div>
+        <div class="card-body">
+            @if (Model.Bookings.Any())
             {
-                <div class="alert alert-info">
-                    <i class="bi bi-info-circle"></i> No bookings found matching your criteria.
+                <div class="table-responsive">
+                    <table class="table table-hover" id="bookingsTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th><i class="bi bi-hash"></i> Booking #</th>
+                                <th><i class="bi bi-calendar"></i> Booking Date</th>
+                                <th><i class="bi bi-person"></i> Customer</th>
+                                <th><i class="bi bi-calendar-event"></i> Event Details</th>
+                                <th><i class="bi bi-building"></i> Venue Details</th>
+                                <th><i class="bi bi-clock"></i> Schedule</th>
+                                <th><i class="bi bi-flag"></i> Status</th>
+                                <th><i class="bi bi-person-badge"></i> Created By</th>
+                                <th><i class="bi bi-gear"></i> Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Bookings)
+                            {
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-primary fs-6">@item.BookingNumber</span>
+                                        <br />
+                                        <small class="text-muted">ID: @item.BookingId</small>
+                                    </td>
+                                    <td>
+                                        <div>@item.BookingDate.ToString("dd MMM yyyy")</div>
+                                        <small class="text-muted">@item.BookingDate.ToString("HH:mm")</small>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-start">
+                                            <div class="me-2">
+                                                <i class="bi bi-person-circle text-muted fs-4"></i>
+                                            </div>
+                                            <div>
+                                                <strong>@item.CustomerName @item.CustomerSurname</strong><br />
+                                                <small class="text-muted">
+                                                    <i class="bi bi-telephone"></i> @item.CustomerPhone
+                                                    @if (!string.IsNullOrEmpty(item.CustomerEmail))
+                                                    {
+                                                        <br /><i class="bi bi-envelope"></i> @item.CustomerEmail
+                                                    }
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if (item.Event != null)
+                                        {
+                                            <div class="d-flex align-items-start">
+                                                <div class="me-2">
+                                                    <i class="bi bi-calendar-event text-success fs-4"></i>
+                                                </div>
+                                                <div>
+                                                    <strong>@item.Event.EventName</strong><br />
+                                                    <small class="text-muted">
+                                                        <i class="bi bi-calendar"></i> @item.Event.EventDate.ToString("dd MMM yyyy")
+                                                        @if (item.Event.ExpectedAttendees.HasValue)
+                                                        {
+                                                            <br /><i class="bi bi-people"></i> @item.Event.ExpectedAttendees.Value <text>expected attendees</text>
+                                                        }
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">No Event</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (item.Venue != null)
+                                        {
+                                            <div class="d-flex align-items-start">
+                                                <div class="me-2">
+                                                    @if (!string.IsNullOrEmpty(item.Venue.ImageUrl))
+                                                    {
+                                                        <img src="@item.Venue.ImageUrl" alt="@item.Venue.VenueName" 
+                                                             class="rounded" style="width: 40px; height: 30px; object-fit: cover;"
+                                                             onerror="this.src='https://via.placeholder.com/40x30?text=V'">
+                                                    }
+                                                    else
+                                                    {
+                                                        <i class="bi bi-building text-primary fs-4"></i>
+                                                    }
+                                                </div>
+                                                <div>
+                                                    <strong>@item.Venue.VenueName</strong><br />
+                                                    <small class="text-muted">
+                                                        <i class="bi bi-geo-alt"></i> @item.Venue.Location
+                                                        <br /><i class="bi bi-people"></i> Capacity: @item.Venue.Capacity
+                                                        @if (item.ExpectedAttendees.HasValue && item.Venue.Capacity > 0)
+                                                        {
+                                                            var utilization = (double)item.ExpectedAttendees.Value / item.Venue.Capacity * 100;
+                                                            <br /><i class="bi bi-speedometer2"></i> 
+                                                            <span class="badge @(utilization > 90 ? "bg-danger" : utilization > 70 ? "bg-warning" : "bg-success")">
+                                                                @utilization:F0%
+                                                            </span>
+                                                        }
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">No Venue</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div><i class="bi bi-calendar-check"></i> @item.StartDate.ToString("dd MMM yyyy")</div>
+                                        <small class="text-muted">
+                                            <i class="bi bi-clock"></i> @item.StartDate.ToString("HH:mm") - @item.EndDate.ToString("HH:mm")
+                                            <br />
+                                            <i class="bi bi-hourglass-split"></i> 
+                                            @{
+                                                var duration = item.EndDate - item.StartDate;
+                                                if (duration.TotalDays >= 1)
+                                                {
+                                                    @($"{duration.TotalDays:F0} days")
+                                                }
+                                                else
+                                                {
+                                                    @($"{duration.TotalHours:F0} hours")
+                                                }
+                                            }
+                                        </small>
+                                        @if (item.ExpectedAttendees.HasValue)
+                                        {
+                                            <br />
+                                            <small class="text-info">
+                                                <i class="bi bi-people"></i> @item.ExpectedAttendees attendees
+                                            </small>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span class="badge fs-6 bg-@(item.Status == "Confirmed" ? "success" :
+                                                                      item.Status == "Pending" ? "warning" :
+                                                                      item.Status == "Cancelled" ? "danger" : "secondary")">
+                                            <i class="bi bi-@(item.Status == "Confirmed" ? "check-circle" :
+                                                             item.Status == "Pending" ? "clock" :
+                                                             item.Status == "Cancelled" ? "x-circle" : "pause-circle")"></i>
+                                            @item.Status
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <i class="bi bi-person-badge text-muted me-2"></i>
+                                            <div>
+                                                <strong>@(item.CreatedByAdmin?.FullName ?? "System")</strong>
+                                                <br />
+                                                <small class="text-muted">@item.CreatedDate.ToString("dd MMM")</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a asp-action="Details" asp-route-id="@item.BookingId"
+                                               class="btn btn-sm btn-outline-info" title="View Details">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            @if (item.Status != "Cancelled")
+                                            {
+                                                <a asp-action="Edit" asp-route-id="@item.BookingId"
+                                                   class="btn btn-sm btn-outline-warning" title="Edit Booking">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                                <a asp-action="Cancel" asp-route-id="@item.BookingId"
+                                                   class="btn btn-sm btn-outline-danger" title="Cancel Booking">
+                                                    <i class="bi bi-x-circle"></i>
+                                                </a>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-search display-1 text-muted"></i>
+                    <h5 class="mt-3">No bookings found</h5>
+                    <p class="text-muted">Try adjusting your search criteria or create a new booking.</p>
+                    <a asp-action="Create" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Create New Booking
+                    </a>
                 </div>
             }
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        function exportBookings() {
+            const table = document.getElementById('bookingsTable');
+            if (!table) return;
+            
+            let csv = [];
+            const rows = table.querySelectorAll('tr');
+            
+            for (let i = 0; i < rows.length; i++) {
+                const row = [], cols = rows[i].querySelectorAll('td, th');
+                
+                for (let j = 0; j < cols.length; j++) {
+                    // Remove HTML tags and clean text
+                    let text = cols[j].innerText || cols[j].textContent;
+                    text = text.replace(/\s+/g, ' ').trim();
+                    
+                    // Escape quotes and wrap in quotes if contains comma
+                    if (text.includes(',') || text.includes('"')) {
+                        text = '"' + text.replace(/"/g, '""') + '"';
+                    }
+                    row.push(text);
+                }
+                csv.push(row.join(','));
+            }
+            
+            const csvContent = csv.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `bookings_export_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+        
+        function refreshData() {
+            window.location.reload();
+        }
+        
+        // Add search highlighting
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchTerm = '@Model.SearchTerm';
+            if (searchTerm) {
+                // Highlight search term in table cells
+                const cells = document.querySelectorAll('#bookingsTable td');
+                cells.forEach(cell => {
+                    const text = cell.textContent;
+                    const regex = new RegExp(`(${searchTerm})`, 'gi');
+                    if (regex.test(text)) {
+                        cell.innerHTML = text.replace(regex, '<mark>$1</mark>');
+                    }
+                });
+            }
+        });
+    </script>
+}
