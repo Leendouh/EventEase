@@ -1,5 +1,6 @@
 using EventEase.Data;
 using EventEase.Models;
+using EventEase.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,6 +8,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+// Add HttpContextAccessor for absolute URL generation
+builder.Services.AddHttpContextAccessor();
 
 // Configure DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -66,6 +70,9 @@ builder.Services.AddAuthorization(options =>
         policy.RequireRole("SuperAdmin"));
 });
 
+// Add Azure Storage service
+builder.Services.AddScoped<IAzureStorageService, AzureStorageService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -76,6 +83,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles(); // This is essential for serving uploaded files
 app.UseRouting();
 
 // Important: Authentication before Authorization
