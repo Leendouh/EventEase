@@ -31,6 +31,10 @@ namespace EventEase.Models
         [Range(1, 10000, ErrorMessage = "Expected attendees must be between 1 and 10,000")]
         public int? ExpectedAttendees { get; set; }
 
+        [Display(Name = "Event Image")]
+        [StringLength(500, ErrorMessage = "Image URL cannot exceed 500 characters")]
+        public string? ImageUrl { get; set; }
+
         [Display(Name = "Venue")]
         public int? VenueId { get; set; }
 
