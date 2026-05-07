@@ -1,6 +1,7 @@
 ﻿using EventEase.Data;
 using EventEase.Models;
 using EventEase.Models.ViewModels;
+using EventEase.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,10 +11,12 @@ namespace EventEase.Controllers
     public class EventController : BaseController
     {
         private readonly ApplicationDbContext _context;
+        private readonly IAzureStorageService _storageService;
 
-        public EventController(ApplicationDbContext context)
+        public EventController(ApplicationDbContext context, IAzureStorageService storageService)
         {
             _context = context;
+            _storageService = storageService;
         }
 
         // GET: Event with Search
@@ -97,19 +100,43 @@ namespace EventEase.Controllers
         // POST: Event/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("EventName,EventDate,Description,ExpectedAttendees,VenueId")] Event @event)
+        public async Task<IActionResult> Create([Bind("EventName,EventDate,Description,ExpectedAttendees,VenueId")] Event @event, IFormFile? imageFile)
         {
             if (ModelState.IsValid)
             {
-                @event.CreatedDate = DateTime.Now;
-                @event.CreatedBy = GetCurrentUserId();
-                @event.IsVenueConfirmed = @event.VenueId.HasValue;
+                try
+                {
+                    // Handle image upload
+                    if (imageFile != null && imageFile.Length > 0)
+                    {
+                        var imageUrl = await _storageService.UploadImageAsync(imageFile, "event-images");
+                        if (!string.IsNullOrEmpty(imageUrl))
+                        {
+                            @event.ImageUrl = imageUrl;
+                        }
+                        else
+                        {
+                            @event.ImageUrl = "https://via.placeholder.com/300x200?text=Event+Image";
+                        }
+                    }
+                    else
+                    {
+                        @event.ImageUrl = "https://via.placeholder.com/300x200?text=Event+Image";
+                    }
 
-                _context.Add(@event);
-                await _context.SaveChangesAsync();
+                    @event.CreatedDate = DateTime.Now;
+                    @event.CreatedBy = GetCurrentUserId();
+                    @event.IsVenueConfirmed = @event.VenueId.HasValue;
 
-                TempData["Success"] = $"Event '{@event.EventName}' created successfully!";
-                return RedirectToAction(nameof(Index));
+                    _context.Add(@event);
+                    await _context.SaveChangesAsync();
+                    TempData["Success"] = $"Event '{@event.EventName}' created successfully!";
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", "An error occurred while saving the event. Please try again.");
+                }
             }
 
             ViewBag.Venues = new SelectList(await _context.Venues.Where(v => v.IsAvailable).ToListAsync(), "VenueId", "VenueName", @event.VenueId);
@@ -137,7 +164,7 @@ namespace EventEase.Controllers
         // POST: Event/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("EventId,EventName,EventDate,Description,ExpectedAttendees,VenueId,IsVenueConfirmed,CreatedDate")] Event @event)
+        public async Task<IActionResult> Edit(int id, [Bind("EventId,EventName,EventDate,Description,ExpectedAttendees,VenueId,IsVenueConfirmed,CreatedDate")] Event @event, IFormFile? imageFile)
         {
             if (id != @event.EventId)
             {
@@ -148,10 +175,37 @@ namespace EventEase.Controllers
             {
                 try
                 {
-                    // Preserve original CreatedBy
+                    // Get existing event to preserve CreatedBy and handle image replacement
                     var existingEvent = await _context.Events.AsNoTracking().FirstOrDefaultAsync(e => e.EventId == id);
-                    @event.CreatedBy = existingEvent?.CreatedBy;
-                    @event.CreatedDate = existingEvent?.CreatedDate ?? DateTime.Now;
+                    if (existingEvent == null)
+                    {
+                        return NotFound();
+                    }
+
+                    // Handle image upload
+                    if (imageFile != null && imageFile.Length > 0)
+                    {
+                        // Delete old image if it exists and is not a placeholder
+                        if (!string.IsNullOrEmpty(existingEvent.ImageUrl) && !existingEvent.ImageUrl.Contains("placeholder.com"))
+                        {
+                            await _storageService.DeleteImageAsync(existingEvent.ImageUrl, "event-images");
+                        }
+
+                        // Upload new image
+                        var imageUrl = await _storageService.UploadImageAsync(imageFile, "event-images");
+                        if (!string.IsNullOrEmpty(imageUrl))
+                        {
+                            @event.ImageUrl = imageUrl;
+                        }
+                    }
+                    else
+                    {
+                        // Keep existing image if no new image uploaded
+                        @event.ImageUrl = existingEvent.ImageUrl;
+                    }
+
+                    @event.CreatedBy = existingEvent.CreatedBy;
+                    @event.CreatedDate = existingEvent.CreatedDate;
                     @event.IsVenueConfirmed = @event.VenueId.HasValue;
 
                     _context.Update(@event);
@@ -210,9 +264,25 @@ namespace EventEase.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var @event = await _context.Events.FindAsync(id);
+            var @event = await _context.Events
+                .Include(e => e.Bookings)
+                .FirstOrDefaultAsync(e => e.EventId == id);
+            
             if (@event != null)
             {
+                // Check for active bookings
+                var activeBookings = @event.Bookings?.Where(b => 
+                    b.Status != "Cancelled" && 
+                    b.Status != "Completed" &&
+                    b.EndDate >= DateTime.Now).ToList() ?? new List<Booking>();
+
+                if (activeBookings.Any())
+                {
+                    var bookingNumbers = activeBookings.Select(b => b.BookingNumber).ToList();
+                    TempData["Error"] = $"Cannot delete event '{@event.EventName}' because it has {activeBookings.Count} active booking(s): {string.Join(", ", bookingNumbers)}. Please cancel or complete these bookings first.";
+                    return RedirectToAction(nameof(Delete), new { id });
+                }
+
                 _context.Events.Remove(@event);
                 await _context.SaveChangesAsync();
                 TempData["Success"] = $"Event '{@event.EventName}' deleted successfully!";
