@@ -1,4 +1,5 @@
 ﻿@model IEnumerable<EventEase.Models.Booking>
+@using EventEase.Helpers
 
 @{
     ViewData["Title"] = "Dashboard";
@@ -109,7 +110,10 @@
                             {
                                 <div class="col-md-4 mb-3">
                                     <div class="card h-100">
-                                        <img src="@venue.ImageUrl" class="card-img-top" alt="@venue.VenueName"
+                                        @{
+    var dynamicImageUrl = Html.ConvertImageUrl(venue.ImageUrl);
+}
+<img src="@dynamicImageUrl" class="card-img-top" alt="@venue.VenueName"
                                              style="height: 150px; object-fit: cover;"
                                              onerror="this.src='https://via.placeholder.com/300x150?text=No+Image'">
                                         <div class="card-body">

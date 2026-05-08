@@ -28,13 +28,16 @@ namespace EventEase.Services
             _logger = logger;
             _httpContextAccessor = httpContextAccessor;
             
+            _logger.LogInformation($"Azure Storage connection string configured: {!string.IsNullOrEmpty(_connectionString)}");
+            
             if (!string.IsNullOrEmpty(_connectionString))
             {
                 _blobServiceClient = new BlobServiceClient(_connectionString);
+                _logger.LogInformation("Azure Storage client initialized successfully");
             }
             else
             {
-                _logger.LogWarning("Azure Storage connection string not found. Using fallback.");
+                _logger.LogWarning("Azure Storage connection string not found. Using fallback to local storage.");
             }
         }
 

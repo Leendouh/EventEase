@@ -21,23 +21,10 @@
                                 var dynamicImageUrl = Html.ConvertImageUrl(Model.ImageUrl);
                                 <img src="@dynamicImageUrl" class="img-fluid rounded" alt="@Model.VenueName"
                                      onerror="this.src='https://via.placeholder.com/400x300?text=Venue+Image'; this.onerror=null;">
-                                <div class="mt-2">
-                                    <small class="text-muted">
-                                        <strong>Debug - Original URL:</strong> @Model.ImageUrl<br />
-                                        <strong>Debug - Dynamic URL:</strong> @dynamicImageUrl<br />
-                                        <strong>Debug - URL Valid:</strong> Yes
-                                    </small>
-                                </div>
                             }
                             else
                             {
                                 <img src="https://via.placeholder.com/400x300?text=Venue+Image" class="img-fluid rounded" alt="@Model.VenueName">
-                                <div class="mt-2">
-                                    <small class="text-muted">
-                                        <strong>Debug - Image URL:</strong> Empty<br />
-                                        <strong>Debug - URL Valid:</strong> No
-                                    </small>
-                                </div>
                             }
                         </div>
                         <div class="col-md-6">
