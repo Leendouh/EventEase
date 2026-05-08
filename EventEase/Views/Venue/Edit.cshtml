@@ -1,4 +1,5 @@
 ﻿@model EventEase.Models.Venue
+@using EventEase.Helpers
 
 @{
     ViewData["Title"] = "Edit Venue";
@@ -41,10 +42,11 @@
                             <label for="imageFile" class="form-label">Venue Image</label>
                             @if (!string.IsNullOrEmpty(Model.ImageUrl))
                             {
+                                var dynamicImageUrl = Html.ConvertImageUrl(Model.ImageUrl);
                                 <div class="mb-2">
                                     <label class="form-label">Current Image:</label>
                                     <div>
-                                        <img src="@Model.ImageUrl" alt="Current venue image" class="img-thumbnail" style="max-height: 150px;"
+                                        <img src="@dynamicImageUrl" alt="Current venue image" class="img-thumbnail" style="max-height: 150px;"
                                              onerror="this.src='https://via.placeholder.com/300x150?text=Current+Image'; this.onerror=null;" />
                                     </div>
                                 </div>
