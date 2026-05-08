@@ -83,7 +83,9 @@ namespace EventEase.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine($"LOGIN ERROR: {ex.Message}");
-                ModelState.AddModelError("", "An error occurred. Please try again.");
+                Console.WriteLine($"LOGIN ERROR STACK TRACE: {ex.StackTrace}");
+                Console.WriteLine($"LOGIN ERROR INNER EXCEPTION: {ex.InnerException?.Message}");
+                ModelState.AddModelError("", $"Login error: {ex.Message}");
                 return View(model);
             }
         }
