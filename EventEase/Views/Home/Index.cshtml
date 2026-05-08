@@ -111,7 +111,8 @@
                                 <div class="col-md-4 mb-3">
                                     <div class="card h-100">
                                         @{
-    var dynamicImageUrl = Html.ConvertImageUrl(venue.ImageUrl);
+    var imageUrl = venue.ImageUrl?.ToString() ?? string.Empty;
+    var dynamicImageUrl = ImageUrlHelper.ConvertImageUrl(Html, imageUrl);
 }
 <img src="@dynamicImageUrl" class="card-img-top" alt="@venue.VenueName"
                                              style="height: 150px; object-fit: cover;"

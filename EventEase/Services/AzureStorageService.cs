@@ -9,16 +9,16 @@ namespace EventEase.Services
 {
     public interface IAzureStorageService
     {
-        Task<string> UploadImageAsync(IFormFile file, string containerName);
+        Task<string?> UploadImageAsync(IFormFile file, string containerName);
         Task<bool> DeleteImageAsync(string blobUrl, string containerName);
-        Task<string> GetBlobUrlAsync(string blobName, string containerName);
+        Task<string?> GetBlobUrlAsync(string blobName, string containerName);
     }
 
     public class AzureStorageService : IAzureStorageService
     {
-        private readonly BlobServiceClient _blobServiceClient;
+        private readonly BlobServiceClient? _blobServiceClient;
         private readonly ILogger<AzureStorageService> _logger;
-        private readonly string _connectionString;
+        private readonly string? _connectionString;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         public AzureStorageService(IConfiguration configuration, ILogger<AzureStorageService> logger, IHttpContextAccessor httpContextAccessor)
@@ -41,7 +41,7 @@ namespace EventEase.Services
             }
         }
 
-        public async Task<string> UploadImageAsync(IFormFile file, string containerName)
+        public async Task<string?> UploadImageAsync(IFormFile file, string containerName)
         {
             try
             {
@@ -110,7 +110,7 @@ namespace EventEase.Services
             }
         }
 
-        public async Task<string> GetBlobUrlAsync(string blobName, string containerName)
+        public async Task<string?> GetBlobUrlAsync(string blobName, string containerName)
         {
             try
             {

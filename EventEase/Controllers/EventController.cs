@@ -133,7 +133,7 @@ namespace EventEase.Controllers
                     TempData["Success"] = $"Event '{@event.EventName}' created successfully!";
                     return RedirectToAction(nameof(Index));
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     ModelState.AddModelError("", "An error occurred while saving the event. Please try again.");
                 }
