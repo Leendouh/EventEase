@@ -132,7 +132,7 @@ namespace EventEase.Controllers
                     
                     if (ModelState.IsValid)
                     {
-                        var imageUrl = await _storageService.UploadImageAsync(imageFile, "venue-images");
+                        var imageUrl = await _storageService.UploadImageAsync(imageFile, "venues");
                         if (!string.IsNullOrEmpty(imageUrl))
                         {
                             venue.ImageUrl = imageUrl;
@@ -227,11 +227,11 @@ namespace EventEase.Controllers
                         // Delete old image if it exists and is not a placeholder
                         if (!string.IsNullOrEmpty(existingVenue.ImageUrl) && !existingVenue.ImageUrl.Contains("placeholder.com"))
                         {
-                            await _storageService.DeleteImageAsync(existingVenue.ImageUrl, "venue-images");
+                            await _storageService.DeleteImageAsync(existingVenue.ImageUrl, "venues");
                         }
 
                         // Upload new image
-                        var imageUrl = await _storageService.UploadImageAsync(imageFile, "venue-images");
+                        var imageUrl = await _storageService.UploadImageAsync(imageFile, "venues");
                         if (!string.IsNullOrEmpty(imageUrl))
                         {
                             venue.ImageUrl = imageUrl;

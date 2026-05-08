@@ -162,14 +162,14 @@ namespace EventEase.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error saving file locally: {Message}", ex.Message);
-                return GetAbsoluteUrl("/images/venues/default-venue.svg");
+                return "https://eventeasestorage111.blob.core.windows.net/venues/default-venue.svg";
             }
         }
 
         private string GetFallbackImageUrl(string fileName)
         {
-            // Return a default local image path as absolute URL
-            return GetAbsoluteUrl("/images/venues/default-venue.svg");
+            // Return Azure Blob Storage URL for default image
+            return "https://eventeasestorage111.blob.core.windows.net/venues/default-venue.svg";
         }
 
         private string GetAbsoluteUrl(string relativePath)
