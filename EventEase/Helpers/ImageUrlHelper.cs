@@ -22,17 +22,17 @@ namespace EventEase.Helpers
                 if (request == null)
                     return imageUrl;
 
-                // If it's already an absolute URL with https, return as is
-                if (imageUrl.StartsWith("https://"))
-                    return imageUrl;
-
-                // If it's an absolute URL with http (likely localhost), convert to current domain
-                if (imageUrl.StartsWith("http://"))
+                // Check if it's a localhost URL (http or https) and convert it
+                if (imageUrl.StartsWith("http://localhost") || imageUrl.StartsWith("https://localhost"))
                 {
                     var uri = new Uri(imageUrl);
                     var relativePath = uri.AbsolutePath;
                     return $"{request.Scheme}://{request.Host}{relativePath}";
                 }
+
+                // If it's already an absolute URL with https (and not localhost), return as is
+                if (imageUrl.StartsWith("https://") && !imageUrl.Contains("localhost"))
+                    return imageUrl;
 
                 // If it's a relative URL, make it absolute
                 if (imageUrl.StartsWith("/"))
