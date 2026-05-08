@@ -1,4 +1,5 @@
 ﻿@model EventEase.Models.ViewModels.VenueSearchViewModel
+@using EventEase.Helpers
 
 @{
     ViewData["Title"] = "Venues";
@@ -60,9 +61,10 @@
         {
             <div class="col-md-4 mb-4">
                 <div class="card h-100 shadow-sm">
-                    @if (!string.IsNullOrEmpty(item.ImageUrl) && Uri.TryCreate(item.ImageUrl, UriKind.Absolute, out _))
+                    @if (!string.IsNullOrEmpty(item.ImageUrl))
                     {
-                        <img src="@item.ImageUrl" class="card-img-top" alt="@item.VenueName"
+                        var dynamicImageUrl = Html.ConvertImageUrl(item.ImageUrl);
+                        <img src="@dynamicImageUrl" class="card-img-top" alt="@item.VenueName"
                              style="height: 200px; object-fit: cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                         <div class="image-placeholder card-img-top" style="display: none;">
                             <i class="bi bi-building"></i>

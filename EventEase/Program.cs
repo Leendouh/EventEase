@@ -73,6 +73,9 @@ builder.Services.AddAuthorization(options =>
 // Add Azure Storage service
 builder.Services.AddScoped<IAzureStorageService, AzureStorageService>();
 
+// Add URL Helper service for dynamic URL conversion
+builder.Services.AddScoped<IUrlHelperService, UrlHelperService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
